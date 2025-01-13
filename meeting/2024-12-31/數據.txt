@@ -1,0 +1,13 @@
+Test Accuracy: 0.3854
+Mean Distance Error (MDE): 1.9370
+
+
+Test Accuracy: 0.3059
+Mean Distance Error (MDE): 2.3376
+
+
+
+
+
+21 original Average MDE across 5 folds: 0.0046
+21 standard Average MDE across 5 folds: 0.0074
