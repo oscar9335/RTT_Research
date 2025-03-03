@@ -2,9 +2,9 @@ import matplotlib.pyplot as plt
 
 # Data
 training_data_per_rp = [0.25, 1.25, 2.5, 5, 10]
-accuracy = [0.8690, 0.8877, 0.9460, 0.9690, 0.9806]
-mde = [0.2046, 0.1620, 0.0709, 0.0455 , 0.0270]
-training_time = [13.13, 4.52, 8.20, 7.80, 9.88]
+accuracy = [0.8881,0.9017,0.9493,0.9710,0.9814]
+mde = [0.1719, 0.1311, 0.0718, 0.0412 , 0.0243]
+training_time = [30.40, 4.96, 8.58, 9.07,  8.75]
 
 # Convert x-axis labels to percentage strings
 x_labels = ["0.25%", "1.25%", "2.5%", "5%", "10%"]
