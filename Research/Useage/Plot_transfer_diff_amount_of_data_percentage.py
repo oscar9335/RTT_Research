@@ -1,4 +1,3 @@
-# Re-import necessary libraries and redefine data as execution state was reset
 import matplotlib.pyplot as plt
 
 # Data
@@ -7,13 +6,18 @@ accuracy = [0.8690, 0.8877, 0.9460, 0.9690, 0.9806]
 mde = [0.2046, 0.1620, 0.0709, 0.0455 , 0.0270]
 training_time = [13.13, 4.52, 8.20, 7.80, 9.88]
 
+# Convert x-axis labels to percentage strings
+x_labels = ["0.25%", "1.25%", "2.5%", "5%", "10%"]
+
 # Re-plot accuracy and MDE with annotations
 fig, ax1 = plt.subplots()
 
-ax1.set_xlabel("Training Data per RP (%)")
+ax1.set_xlabel("Training Data per RP (% of Pretrained Model)")
 ax1.set_ylabel("Accuracy", color="tab:blue")
 ax1.plot(training_data_per_rp, accuracy, marker="o", color="tab:blue", label="Accuracy")
 ax1.tick_params(axis="y", labelcolor="tab:blue")
+ax1.set_xticks(training_data_per_rp)
+ax1.set_xticklabels(x_labels)
 
 # Annotate Accuracy values
 for i, txt in enumerate(accuracy):
@@ -40,8 +44,9 @@ plt.plot(training_data_per_rp, training_time, marker="^", color="tab:green", lab
 for i, txt in enumerate(training_time):
     plt.annotate(f"{txt:.2f}s", (training_data_per_rp[i], training_time[i]), textcoords="offset points", xytext=(0,5), ha='center', color="tab:green")
 
-plt.xlabel("Training Data per RP (%)")
+plt.xlabel("Training Data per RP (% of Pretrained Model)")
 plt.ylabel("Training Time (s)")
+plt.xticks(training_data_per_rp, x_labels)
 plt.title("Training Time vs. Training Data per RP (%)")
 plt.legend()
 plt.show()
