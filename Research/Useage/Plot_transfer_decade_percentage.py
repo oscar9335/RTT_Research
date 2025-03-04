@@ -27,6 +27,7 @@ for label, values in accuracy_data.items():
         plt.annotate(f"{txt:.4f}", (weeks[i], values[i]), textcoords="offset points", xytext=(0,5), ha='center')
 
 plt.xlabel("Week")
+plt.xticks(weeks, weeks)
 plt.ylabel("Accuracy")
 plt.title("Accuracy Decay Over Time (Fine-Tuning Each Week)")
 plt.legend(title="Training Data per RP")
@@ -41,6 +42,7 @@ for label, values in mde_data.items():
         plt.annotate(f"{txt:.4f}", (weeks[i], values[i]), textcoords="offset points", xytext=(0,5), ha='center')
 
 plt.xlabel("Week")
+plt.xticks(weeks, weeks)
 plt.ylabel("MDE (m)")
 plt.title("MDE Increase Over Time (Fine-Tuning Each Week)")
 plt.legend(title="Training Data per RP")
