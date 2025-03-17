@@ -17,7 +17,7 @@ label_mapping = {
 }
 
 # 讀取 JSON 數據
-file_path = "mde_report_avg_2024_12_14.json"
+file_path = "mcAP2_mcAP4_2024_12_14_mde"
 with open(file_path) as file:
     mde_data = json.load(file)
 
@@ -61,5 +61,5 @@ ax.set_yticks(np.arange(-0.5, cols, 1), minor=True)
 ax.grid(which="minor", color="black", linestyle='-', linewidth=2)
 ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
 
-plt.title("MDE Heatmap (90° Clockwise Rotation)")
+plt.title("mcAP1_mcAP3_2024_12_14_mde")
 plt.show()
