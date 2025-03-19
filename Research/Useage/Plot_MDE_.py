@@ -17,7 +17,7 @@ label_mapping = {
 }
 
 # 讀取 JSON 數據
-file_path = "Testing_mde"
+file_path = "Testing_5fold_mde"
 with open(file_path) as file:
     mde_data = json.load(file)
 
