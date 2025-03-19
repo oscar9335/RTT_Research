@@ -17,7 +17,7 @@ label_mapping = {
 }
 
 # 讀取 JSON 數據
-file_path = "mcAP2_mcAP4_2024_12_14_mde"
+file_path = "2mcAP_FTMonly_WORST_2024_12_14_mde"
 with open(file_path) as file:
     mde_data = json.load(file)
 
@@ -61,5 +61,5 @@ ax.set_yticks(np.arange(-0.5, cols, 1), minor=True)
 ax.grid(which="minor", color="black", linestyle='-', linewidth=2)
 ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
 
-plt.title("mcAP1_mcAP3_2024_12_14_mde")
+plt.title("2mcAP worst( 2 FTM only )_2024_12_14_mde")
 plt.show()
