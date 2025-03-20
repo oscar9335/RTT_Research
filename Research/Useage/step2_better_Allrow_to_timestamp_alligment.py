@@ -17,8 +17,8 @@ for file_name in os.listdir(input_folder):
         # Step 1: 修改 BSSID 對應的 AP SSID
         data.loc[data['BSSID'] == '24:29:34:e2:4c:36', 'AP SSID'] = 'AP1'
         data.loc[data['BSSID'] == '24:29:34:e1:ef:d4', 'AP SSID'] = 'AP2'
-        data.loc[data['BSSID'] == 'e4:5e:1b:a0:5e:85', 'AP SSID'] = 'AP3'
-        data.loc[data['BSSID'] == 'b0:e4:d5:88:16:86', 'AP SSID'] = 'AP4'
+        data.loc[data['BSSID'] == 'e4:5e:1b:a0:5e:85', 'AP SSID'] = 'AP4'
+        data.loc[data['BSSID'] == 'b0:e4:d5:88:16:86', 'AP SSID'] = 'AP3'
 
         # Step 2: 忽略 timeStemp 欄位的最後一位數
         data['timeStemp'] = data['timeStemp'].astype(str).str[:-1]  # 刪除最後一位數
