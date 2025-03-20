@@ -3,8 +3,8 @@ import csv
 import os
 
 # Path for input directory
-input_directory = "txt_files"  # Replace with your directory path
-output_directory = os.path.join(input_directory, "2025_01_10\\raw data")  # Output directory path
+input_directory = "txt_files_RAW_data"  # Replace with your directory path
+output_directory = os.path.join(input_directory, "2024_12_14\\raw data")  # Output directory path
 
 # Create the output directory if it doesn't exist
 if not os.path.exists(output_directory):
