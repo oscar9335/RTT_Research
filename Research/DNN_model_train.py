@@ -44,8 +44,8 @@ label_mapping = {
     '45': '11-1','44': '11-2','43': '11-3','42': '11-4','41': '11-5','40': '11-6','39': '11-7','38': '11-8','37': '11-9','36': '11-10','35': '11-11'
 }
 selected_columns = ['Label',
-                        'AP1_Distance (mm)','AP3_Distance (mm)',
-                        'AP1_StdDev (mm)','AP3_StdDev (mm)',
+                        'AP1_Distance (mm)','AP2_Distance (mm)','AP3_Distance (mm)','AP4_Distance (mm)',
+                        'AP1_StdDev (mm)','AP2_StdDev (mm)','AP3_Distance (mm)','AP4_Distance (mm)',
                                 'AP1_Rssi','AP2_Rssi','AP3_Rssi','AP4_Rssi'
                                 ]  
 
@@ -112,13 +112,16 @@ print(X_scaled)
 
 from sklearn.model_selection import StratifiedShuffleSplit
 
-for i in range(10):
+all_mde = []
+all_accuracy = []
+
+for i in range(5):
 
     ap = 'test'
     root = 'test'
 
     dataamount = 320
-    N_val = 1
+    N_val = 20
 
     N_train = dataamount # 訓練集每個類別至少要有 N_train 筆資料
     test_val_ratio = 1  # 剩餘資料中，50% 作為驗證集，50% 作為測試集
@@ -126,7 +129,7 @@ for i in range(10):
     data = pd.DataFrame(X_scaled)
     data['label'] = y_numeric  # 加入 label 欄位
 
-    train_data_full = data.groupby('label', group_keys=False).sample(n=N_train, replace=False) # ,random_state=42
+    train_data_full = data.groupby('label', group_keys=False).sample(n=N_train, replace=False,random_state=42) 
 
     train_data_full
 
@@ -158,6 +161,7 @@ for i in range(10):
 
     from IPython.display import display
     display(label_distribution)
+
     import time
     # 記錄開始時間
     start_time = time.time()
@@ -180,14 +184,14 @@ for i in range(10):
 
     early_stop_loss = EarlyStopping(monitor='loss', patience=10, restore_best_weights=True)
 
-    # # 訓練模型，包含驗證集
-    # model.fit(X_train, y_train,
-    #         validation_data=(X_val, y_val),
-    #         epochs=10000, batch_size=32, verbose=1, callbacks=[early_stop])
-    
     # 訓練模型，包含驗證集
     model.fit(X_train, y_train,
-            epochs=10000, batch_size=32, verbose=1, callbacks=[early_stop_loss])
+            validation_data=(X_val, y_val),
+            epochs=10000, batch_size=32, verbose=1, callbacks=[early_stop])
+    
+    # # 訓練模型，包含驗證集
+    # model.fit(X_train, y_train,
+    #         epochs=10000, batch_size=32, verbose=1, callbacks=[early_stop_loss])
 
     # 記錄結束時間
     end_time = time.time()
@@ -214,6 +218,8 @@ for i in range(10):
     avg_mde = np.mean(distances)
     print(f"MDE: {avg_mde:.4f}")
 
+    all_mde.append(avg_mde)
+
     # 記錄每個 RP 在當前 fold 的 MDE
     for true_label, distance in zip(y_test, distances):
         if true_label not in mde_report_per_fold:
@@ -225,6 +231,7 @@ for i in range(10):
 
     mde_report_avg = {int(label): {"mde": np.mean(distances), "count": len(distances)} 
                     for label, distances in mde_report_per_fold.items()}
+                    
 
     # 儲存到 JSON 檔案
     file_path = f"Testing_mde_using_loss_Bestcomb_{i}"
@@ -232,3 +239,74 @@ for i in range(10):
         json.dump(mde_report_avg, f, indent=4)
 
     print(f"MDE report saved to: {file_path}")
+    
+
+## mde every RP
+
+    # 記錄每個 RP 在當前 fold 的 MDE
+    for true_label, distance in zip(y_test, distances):
+        true_label = int(true_label)  # 確保鍵是 int
+        if true_label not in mde_report_per_fold:
+            mde_report_per_fold[true_label] = []
+        mde_report_per_fold[true_label].append(distance)  # 存所有 fold 的 MDE
+
+    # 計算 5-Fold 平均 MDE，並記錄 MDE 不為 0 的 error 值
+    mde_report_avg = {}
+    
+    for label, dist_list in mde_report_per_fold.items():
+        mean_dist = np.mean(dist_list)
+        count = len(dist_list)
+
+        # 如果 mean_dist > 0，則記錄個別的 error 值
+        error_dict = {str(idx + 1): float(d) for idx, d in enumerate(dist_list) if d > 0}
+
+        # 建構最終輸出格式
+        mde_report_avg[int(label)] = {
+            "mde": mean_dist,
+            "count": count
+        }
+
+        # 只有當 MDE 大於 0 時才存儲 error 值
+        if error_dict:
+            mde_report_avg[int(label)]["error"] = error_dict
+
+    # 儲存到 JSON 檔案
+    file_path = f"Testing_mde_detailed_using_loss_Bestcomb_{i}.json"
+    with open(file_path, "w") as f:
+        json.dump(mde_report_avg, f, indent=4)
+
+    print(f"MDE report saved to: {file_path}")
+
+
+## accuracy
+        # **計算 Accuracy**
+    _, test_accuracy = model.evaluate(X_test, y_test, verbose=0)
+    print(f"Test Accuracy: {test_accuracy:.4f}")
+
+    all_accuracy.append(test_accuracy)
+
+    # **記錄每個 RP 的 Accuracy**
+    accuracy_report_per_fold = {}
+    for true_label, pred_label in zip(y_test, y_pred_classes):
+        if true_label not in accuracy_report_per_fold:
+            accuracy_report_per_fold[true_label] = {"correct": 0, "total": 0}
+        accuracy_report_per_fold[true_label]["total"] += 1
+        if true_label == pred_label:
+            accuracy_report_per_fold[true_label]["correct"] += 1
+
+    # 計算每個 RP 的 Accuracy
+    accuracy_report_avg = {int(label): {"accuracy": correct_info["correct"] / correct_info["total"], 
+                                        "count": correct_info["total"]}
+                        for label, correct_info in accuracy_report_per_fold.items()}
+    
+    
+    # 儲存到 JSON 檔案
+    file_path = f"Testing_accuracy_using_loss_Bestcomb_{i}"
+    with open(file_path, "w") as f:
+        json.dump(accuracy_report_avg, f, indent=4)
+
+    print(f"Accuracy report saved to: {file_path}")
+
+
+print(all_mde)
+print(all_accuracy)
