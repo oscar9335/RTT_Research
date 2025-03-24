@@ -2,7 +2,7 @@ import json
 import pandas as pd
 
 # 讀取 JSON 檔案
-file_path = "Testing_mde_detailed_using_loss_Bestcomb_2.json"
+file_path = "Testing_mde_detailed_using_loss_Bestcomb_A.json"
 with open(file_path, "r") as file:
     data = json.load(file)
 
@@ -31,7 +31,7 @@ renamed_data = {label_mapping.get(key, key): value for key, value in incremented
 df = pd.DataFrame.from_dict(renamed_data, orient='index')
 
 # 儲存為新的 JSON 檔案
-output_file_path = "Mapped_JSON_Data.json"
+output_file_path = "Testing_mde_detailed_using_loss_Bestcomb_A.json"
 with open(output_file_path, "w") as output_file:
     json.dump(renamed_data, output_file, indent=4)
 
