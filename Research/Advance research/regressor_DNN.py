@@ -11,16 +11,26 @@ all_accuracy = []
 
 for loop in range(5):
 
-    ### 1. 訓練 regressor (利用 AP1 與 AP4 的資料)
+### 1. 訓練 regressor 
     df_reg = pd.read_csv("timestamp_allignment_Balanced_2024_12_14_rtt_logs.csv")
+
     # 篩選有有效 distance 的資料
-    ap1_data = df_reg[['AP2_Rssi', 'AP2_Distance (mm)']].dropna().rename(
-        columns={'AP2_Rssi': 'Rssi', 'AP2_Distance (mm)': 'Distance'}
+    ap1_data = df_reg[['AP1_Rssi', 'AP1_Distance (mm)']].dropna().rename(
+        columns={'AP1_Rssi': 'Rssi', 'AP1_Distance (mm)': 'Distance'}
     )
-    ap4_data = df_reg[['AP3_Rssi', 'AP3_Distance (mm)']].dropna().rename(
-        columns={'AP3_Rssi': 'Rssi', 'AP3_Distance (mm)': 'Distance'}
+
+    # ap3_data = df_reg[['AP3_Rssi', 'AP3_Distance (mm)']].dropna().rename(
+    #     columns={'AP3_Rssi': 'Rssi', 'AP3_Distance (mm)': 'Distance'}
+    # )
+
+    ap4_data = df_reg[['AP4_Rssi', 'AP4_Distance (mm)']].dropna().rename(
+        columns={'AP4_Rssi': 'Rssi', 'AP4_Distance (mm)': 'Distance'}
     )
+
+
     train_data_reg = pd.concat([ap1_data, ap4_data], ignore_index=True)
+
+
     X_train_reg = train_data_reg[['Rssi']]
     y_train_reg = train_data_reg['Distance']
 
@@ -28,11 +38,16 @@ for loop in range(5):
     model_reg.fit(X_train_reg, y_train_reg)
     print("Regressor trained. Coefficient:", model_reg.coef_, "Intercept:", model_reg.intercept_)
 
-    ### 2. 讀取 DNN 需要的資料
+### 1-2 存下 regressor
+    joblib.dump(model_reg, f'regressor_model_AP1&AP4_{loop}.pkl')
+
+
+
+### 2. 讀取 DNN 需要的資料
     # DNN 使用的原始欄位
     selected_columns = ['Label',
-                        'AP2_Distance (mm)', 'AP3_Distance (mm)',
-                        'AP2_StdDev (mm)', 'AP3_StdDev (mm)',
+                        'AP1_Distance (mm)','AP4_Distance (mm)',
+                        'AP1_StdDev (mm)', 'AP4_StdDev (mm)',
                         'AP1_Rssi', 'AP2_Rssi', 'AP3_Rssi', 'AP4_Rssi']
 
     file_path = "timestamp_allignment_Balanced_2024_12_14_rtt_logs.csv"
@@ -49,27 +64,39 @@ for loop in range(5):
         lambda group: group.fillna(group.mean())
     ).reset_index()
 
-    ### 3. 利用 regressor 擴充 AP2/3 的 Distance 預測值
+### 3. 利用 regressor 擴充 AP 2 3 的 Distance 預測值
     # 建立新欄位，初值設定為 NaN
-    data_imputed['AP1_Distance_predicted'] = np.nan
-    data_imputed['AP4_Distance_predicted'] = np.nan
+    data_imputed['AP2_Distance_predicted'] = np.nan
+    data_imputed['AP3_Distance_predicted'] = np.nan
+
+    # # 利用 AP1_Rssi 預測 AP1_Distance_predicted
+    # mask_ap1 = data_imputed['AP1_Rssi'].notna()
+    # data_imputed.loc[mask_ap1, 'AP1_Distance_predicted'] = model_reg.predict(
+    #     data_imputed.loc[mask_ap1, ['AP1_Rssi']].rename(columns={'AP1_Rssi': 'Rssi'})
+    # )
 
     # 利用 AP2_Rssi 預測 AP2_Distance_predicted
-    mask_ap2 = data_imputed['AP1_Rssi'].notna()
-    data_imputed.loc[mask_ap2, 'AP1_Distance_predicted'] = model_reg.predict(
-        data_imputed.loc[mask_ap2, ['AP1_Rssi']].rename(columns={'AP1_Rssi': 'Rssi'})
+    mask_ap2 = data_imputed['AP2_Rssi'].notna()
+    data_imputed.loc[mask_ap2, 'AP2_Distance_predicted'] = model_reg.predict(
+        data_imputed.loc[mask_ap2, ['AP2_Rssi']].rename(columns={'AP2_Rssi': 'Rssi'})
     )
 
     # 利用 AP3_Rssi 預測 AP3_Distance_predicted
-    mask_ap3 = data_imputed['AP4_Rssi'].notna()
-    data_imputed.loc[mask_ap3, 'AP4_Distance_predicted'] = model_reg.predict(
-        data_imputed.loc[mask_ap3, ['AP4_Rssi']].rename(columns={'AP4_Rssi': 'Rssi'})
+    mask_ap3 = data_imputed['AP3_Rssi'].notna()
+    data_imputed.loc[mask_ap3, 'AP3_Distance_predicted'] = model_reg.predict(
+        data_imputed.loc[mask_ap3, ['AP3_Rssi']].rename(columns={'AP3_Rssi': 'Rssi'})
     )
 
-    # 更新 DNN 模型用的特徵欄位，將 regressor 預測值加入
-    selected_columns_dnn = selected_columns + ['AP1_Distance_predicted', 'AP4_Distance_predicted']
+    # # 利用 AP4_Rssi 預測 AP4_Distance_predicted
+    # mask_ap4 = data_imputed['AP4_Rssi'].notna()
+    # data_imputed.loc[mask_ap4, 'AP4_Distance_predicted'] = model_reg.predict(
+    #     data_imputed.loc[mask_ap4, ['AP4_Rssi']].rename(columns={'AP4_Rssi': 'Rssi'})
+    # )
 
-    ### 4. 後續 DNN 資料準備與訓練
+    # 更新 DNN 模型用的特徵欄位，將 regressor 預測值加入
+    selected_columns_dnn = selected_columns + ['AP2_Distance_predicted', 'AP3_Distance_predicted']
+
+### 4. 後續 DNN 資料準備與訓練
     print("每個 RP 的資料筆數: " + str(len(data_imputed)/49))
 
     # 以下部分依照原有 DNN code 執行
@@ -115,10 +142,13 @@ for loop in range(5):
     print("擴充後的特徵資料預覽：")
     print(X.head())
 
-    # 標準化
+    print("所有特徵欄位：")
+    print(list(X.columns))
+
+    # 標準化 and Save
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
-    joblib.dump(scaler, 'scaler_dnn.pkl')
+    joblib.dump(scaler, f'scaler_regressor_dnn_AP1&AP4_{loop}.pkl')
     print("標準化後的特徵陣列：")
     print(X_scaled)
 
@@ -158,8 +188,6 @@ for loop in range(5):
     val_data = train_data_full.iloc[val_index]
     remaining_data = data.drop(train_data_full.index)
 
-    ## i
-
     # 將特徵欄位加入欄名（selected_columns 去除 Label）
     feature_names = selected_columns_dnn.copy()
     feature_names.remove('Label')
@@ -177,13 +205,6 @@ for loop in range(5):
     test_data_named = pd.DataFrame(remaining_data.drop(columns=['label']).values, columns=feature_names)
     test_data_named['label'] = remaining_data['label'].values
 
-    # # 輸出成 CSV
-    # train_data_named.to_csv(f'{output_dir}/train_data_{what_data}.csv', index=False)
-    # val_data_named.to_csv(f'{output_dir}/val_data_{what_data}.csv', index=False)
-    # test_data_named.to_csv(f'{output_dir}/test_data_{what_data}.csv', index=False)
-
-
-    ## e
 
 
     X_train, y_train = train_data.drop(columns=['label']).values, train_data['label'].values
@@ -350,5 +371,12 @@ for loop in range(5):
     print(f"Accuracy report saved to: {file_path}")
 
 
-print(all_mde)
-print(all_accuracy)
+    # save DNN model
+    model_dnn.save(f'regressor_dnn_AP1&AP4_{loop}.h5')
+
+
+
+print([round(float(mde), 4) for mde in all_mde])
+print([round(float(acc), 4) for acc in all_accuracy])
+
+

@@ -50,8 +50,8 @@ for loop in range(5):
         '45': '11-1','44': '11-2','43': '11-3','42': '11-4','41': '11-5','40': '11-6','39': '11-7','38': '11-8','37': '11-9','36': '11-10','35': '11-11'
     }
     selected_columns = ['Label',
-                            'AP2_Distance (mm)','AP3_Distance (mm)',
-                            'AP2_StdDev (mm)','AP3_StdDev (mm)',
+                            'AP1_Distance (mm)','AP2_Distance (mm)','AP3_Distance (mm)','AP4_Distance (mm)',
+                            'AP1_StdDev (mm)','AP2_StdDev (mm)','AP3_StdDev (mm)','AP4_StdDev (mm)',
                                     'AP1_Rssi','AP2_Rssi','AP3_Rssi','AP4_Rssi'
                                     ]  
 
@@ -340,5 +340,6 @@ for loop in range(5):
     print(f"Accuracy report saved to: {file_path}")
 
 
-print(all_mde)
-print(all_accuracy)
+print([round(float(mde), 4) for mde in all_mde])
+print([round(float(acc), 4) for acc in all_accuracy])
+
