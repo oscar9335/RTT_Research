@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import SGDRegressor
 import joblib
 import json
 
@@ -34,7 +35,9 @@ for loop in range(5):
     X_train_reg = train_data_reg[['Rssi']]
     y_train_reg = train_data_reg['Distance']
 
-    model_reg = LinearRegression()
+    model_reg = SGDRegressor(loss='squared_error', penalty='l2', max_iter=1000, tol=1e-3, random_state=42)
+    # model_reg = LinearRegression()
+
     model_reg.fit(X_train_reg, y_train_reg)
     print("Regressor trained. Coefficient:", model_reg.coef_, "Intercept:", model_reg.intercept_)
 
@@ -142,7 +145,7 @@ for loop in range(5):
     print("擴充後的特徵資料預覽：")
     print(X.head())
 
-    print("所有特徵欄位：")
+    print("*******************所有特徵欄位*******************：")
     print(list(X.columns))
 
     # 標準化 and Save
