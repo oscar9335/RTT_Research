@@ -44,8 +44,8 @@ label_mapping = {
     '45': '11-1','44': '11-2','43': '11-3','42': '11-4','41': '11-5','40': '11-6','39': '11-7','38': '11-8','37': '11-9','36': '11-10','35': '11-11'
 }
 selected_columns = ['Label',
-                        'AP1_Distance (mm)','AP4_Distance (mm)',
-                        'AP1_StdDev (mm)','AP4_StdDev (mm)',
+                        'AP1_Distance (mm)','AP2_Distance (mm)','AP3_Distance (mm)','AP4_Distance (mm)',
+                        'AP1_StdDev (mm)','AP2_StdDev (mm)','AP3_StdDev (mm)','AP4_StdDev (mm)',
                                 'AP1_Rssi','AP2_Rssi','AP3_Rssi','AP4_Rssi'
                                 ]  
 
@@ -116,7 +116,11 @@ from sklearn.model_selection import StratifiedShuffleSplit
 all_mde = []
 all_accuracy = []
 
-for i in range(5):
+best_mde = float('inf')  # 初始化最佳 MDE
+
+modelname = "2mcAPbestbset"
+
+for i in range(1):
 
     ap = 'test'
     root = 'test'
@@ -170,6 +174,7 @@ for i in range(5):
     # X_val, y_val
     # X_test, y_test 
     # 建立 DNN 模型
+
     model = keras.Sequential([
         keras.layers.Dense(64, activation='relu', input_shape=(X_train.shape[1],)),
         keras.layers.Dense(128, activation='relu'),
@@ -217,6 +222,13 @@ for i in range(5):
 
     distances = np.linalg.norm(y_test_pred_coordinates - y_test_coordinates, axis=1)
     avg_mde = np.mean(distances)
+
+    # if best_mde > avg_mde:
+    #     best_mde = avg_mde
+    #     model.save(f'{modelname}.h5')
+
+    model.save(f'{modelname}.h5')
+
     print(f"MDE: {avg_mde:.4f}")
 
     all_mde.append(avg_mde)
@@ -234,12 +246,12 @@ for i in range(5):
                     for label, distances in mde_report_per_fold.items()}
                     
 
-    # 儲存到 JSON 檔案
-    file_path = f"Testing_mde_using_loss_Bestcomb_{i}"
-    with open(file_path, "w") as f:
-        json.dump(mde_report_avg, f, indent=4)
+    # # 儲存到 JSON 檔案
+    # file_path = f"Testing_mde_using_loss_Bestcomb_{i}"
+    # with open(file_path, "w") as f:
+    #     json.dump(mde_report_avg, f, indent=4)
 
-    print(f"MDE report saved to: {file_path}")
+    # print(f"MDE report saved to: {file_path}")
     
 
 ## mde every RP
@@ -271,16 +283,16 @@ for i in range(5):
         if error_dict:
             mde_report_avg[int(label)]["error"] = error_dict
 
-    # 儲存到 JSON 檔案
-    file_path = f"Testing_mde_detailed_using_loss_Bestcomb_{i}.json"
-    with open(file_path, "w") as f:
-        json.dump(mde_report_avg, f, indent=4)
+    # # 儲存到 JSON 檔案
+    # file_path = f"Testing_mde_detailed_using_loss_Bestcomb_{i}.json"
+    # with open(file_path, "w") as f:
+    #     json.dump(mde_report_avg, f, indent=4)
 
-    print(f"MDE report saved to: {file_path}")
+    # print(f"MDE report saved to: {file_path}")
 
 
 ## accuracy
-        # **計算 Accuracy**
+    # **計算 Accuracy**
     _, test_accuracy = model.evaluate(X_test, y_test, verbose=0)
     print(f"Test Accuracy: {test_accuracy:.4f}")
 
@@ -301,13 +313,12 @@ for i in range(5):
                         for label, correct_info in accuracy_report_per_fold.items()}
     
     
-    # 儲存到 JSON 檔案
-    file_path = f"Testing_accuracy_using_loss_Bestcomb_{i}"
-    with open(file_path, "w") as f:
-        json.dump(accuracy_report_avg, f, indent=4)
+    # # 儲存到 JSON 檔案
+    # file_path = f"Testing_accuracy_using_loss_Bestcomb_{i}"
+    # with open(file_path, "w") as f:
+    #     json.dump(accuracy_report_avg, f, indent=4)
 
-    print(f"Accuracy report saved to: {file_path}")
+    # print(f"Accuracy report saved to: {file_path}")
 
-
-print(all_mde)
-print(all_accuracy)
+print([round(float(mde), 4) for mde in all_mde])
+print([round(float(acc), 4) for acc in all_accuracy])

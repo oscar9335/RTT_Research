@@ -12,7 +12,7 @@ all_accuracy = []
 
 best_mde = float('inf')  # 初始化最佳 MDE
 
-for loop in range(3):
+for loop in range(5):
 
 ### 1. 訓練 regressor 
     df_reg = pd.read_csv("timestamp_allignment_Balanced_2024_12_14_rtt_logs.csv")
@@ -33,14 +33,20 @@ for loop in range(3):
     train_data_reg = pd.concat([ap1_data, ap4_data], ignore_index=True)
     X_train_reg = train_data_reg[['Rssi']]
     y_train_reg = train_data_reg['Distance']
+
+# 標準化 regressor 輸入（單一特徵）
+    scaler_reg = StandardScaler()
+    X_train_reg_scaled = scaler_reg.fit_transform(X_train_reg)
     
 ### 訓練 regressor
-    model_reg = SGDRegressor() #loss="huber",penalty="l2",tol=1e-4,learning_rate='optimal'
+    model_reg = SGDRegressor(loss="huber",penalty="l2",tol=1e-4,learning_rate='optimal')
     # model_reg = LinearRegression()
-    model_reg.fit(X_train_reg, y_train_reg)
+    model_reg.fit(X_train_reg_scaled, y_train_reg)
     print("Regressor trained. Coefficient:", model_reg.coef_, "Intercept:", model_reg.intercept_)
 
-
+### 1-2 存下 regressor
+    joblib.dump(model_reg, f'regressor_model_AP1&AP4_{loop}.pkl')
+    joblib.dump(scaler_reg, f'scaler_regressor_input_{loop}.pkl')
 
 
 
@@ -76,17 +82,18 @@ for loop in range(3):
     #     data_imputed.loc[mask_ap1, ['AP1_Rssi']].rename(columns={'AP1_Rssi': 'Rssi'})
     # )
 
-    # 利用 AP2_Rssi 預測 AP2_Distance_predicted
+     # 利用 AP2_Rssi 預測 AP2_Distance_predicted
     mask_ap2 = data_imputed['AP2_Rssi'].notna()
-    data_imputed.loc[mask_ap2, 'AP2_Distance_predicted'] = model_reg.predict(
-        data_imputed.loc[mask_ap2, ['AP2_Rssi']].rename(columns={'AP2_Rssi': 'Rssi'})
-    )
-
+    if mask_ap2.any():
+        # 先將 AP2_Rssi 轉換成 regressor 所需的格式並標準化
+        AP2_Rssi_scaled = scaler_reg.transform(data_imputed.loc[mask_ap2, ['AP2_Rssi']].rename(columns={'AP2_Rssi': 'Rssi'}))
+        data_imputed.loc[mask_ap2, 'AP2_Distance_predicted'] = model_reg.predict(AP2_Rssi_scaled)
+    
     # 利用 AP3_Rssi 預測 AP3_Distance_predicted
     mask_ap3 = data_imputed['AP3_Rssi'].notna()
-    data_imputed.loc[mask_ap3, 'AP3_Distance_predicted'] = model_reg.predict(
-        data_imputed.loc[mask_ap3, ['AP3_Rssi']].rename(columns={'AP3_Rssi': 'Rssi'})
-    )
+    if mask_ap3.any():
+        AP3_Rssi_scaled = scaler_reg.transform(data_imputed.loc[mask_ap3, ['AP3_Rssi']].rename(columns={'AP3_Rssi': 'Rssi'}))
+        data_imputed.loc[mask_ap3, 'AP3_Distance_predicted'] = model_reg.predict(AP3_Rssi_scaled)
 
     # # 利用 AP4_Rssi 預測 AP4_Distance_predicted
     # mask_ap4 = data_imputed['AP4_Rssi'].notna()
@@ -146,10 +153,10 @@ for loop in range(3):
     print("*******************所有特徵欄位*******************：")
     print(list(X.columns))
 
-    # 標準化 and Save
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-    
+    # 統一對合併後的所有 DNN 特徵進行標準化，避免重複標準化
+    scaler_dnn = StandardScaler()
+    X_scaled = scaler_dnn.fit_transform(X)
+    joblib.dump(scaler_dnn, f'scaler_regressor_dnn_AP1&AP4_{loop}.pkl')
     print("標準化後的特徵陣列：")
     print(X_scaled)
 
@@ -297,12 +304,12 @@ for loop in range(3):
                     for label, distances in mde_report_per_fold.items()}
                     
 
-    # # 儲存到 JSON 檔案
-    # file_path = f"Testing_mde_using_loss_Bestcomb_{loop}"
-    # with open(file_path, "w") as f:
-    #     json.dump(mde_report_avg, f, indent=4)
+    # 儲存到 JSON 檔案
+    file_path = f"Testing_mde_using_loss_Bestcomb_{loop}"
+    with open(file_path, "w") as f:
+        json.dump(mde_report_avg, f, indent=4)
 
-    # print(f"MDE report saved to: {file_path}")
+    print(f"MDE report saved to: {file_path}")
 
 
     ## mde every RP
@@ -334,12 +341,12 @@ for loop in range(3):
         if error_dict:
             mde_report_avg[int(label)]["error"] = error_dict
 
-    # # 儲存到 JSON 檔案
-    # file_path = f"Testing_mde_detailed_using_loss_Bestcomb_{loop}.json"
-    # with open(file_path, "w") as f:
-    #     json.dump(mde_report_avg, f, indent=4)
+    # 儲存到 JSON 檔案
+    file_path = f"Testing_mde_detailed_using_loss_Bestcomb_{loop}.json"
+    with open(file_path, "w") as f:
+        json.dump(mde_report_avg, f, indent=4)
 
-    # print(f"MDE report saved to: {file_path}")
+    print(f"MDE report saved to: {file_path}")
 
 
     ## accuracy
@@ -364,19 +371,15 @@ for loop in range(3):
                         for label, correct_info in accuracy_report_per_fold.items()}
 
 
-    # # 儲存到 JSON 檔案
-    # file_path = f"Testing_accuracy_using_loss_Bestcomb_{loop}"
-    # with open(file_path, "w") as f:
-    #     json.dump(accuracy_report_avg, f, indent=4)
+    # 儲存到 JSON 檔案
+    file_path = f"Testing_accuracy_using_loss_Bestcomb_{loop}"
+    with open(file_path, "w") as f:
+        json.dump(accuracy_report_avg, f, indent=4)
 
-    # print(f"Accuracy report saved to: {file_path}")
+    print(f"Accuracy report saved to: {file_path}")
 
-    if best_mde > avg_mde:
-        ### 1-2 存下 regressor scaler dnn
-        joblib.dump(scaler, f'scaler_regressor_dnn_AP1&AP4.pkl')
-        joblib.dump(model_reg, f'regressor_model_AP1&AP4.pkl')    
-        model_dnn.save(f'regressor_dnn_AP1&AP4.h5')
-
+    # save DNN model
+    model_dnn.save(f'regressor_dnn_AP1&AP4_{loop}.h5')
 
 
 
