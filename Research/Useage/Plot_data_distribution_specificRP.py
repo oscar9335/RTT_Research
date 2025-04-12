@@ -4,12 +4,12 @@ import seaborn as sns
 import os
 
 # 讀取 CSV 檔案
-file_path = "split_dataset_csv\\test_data_test.csv"
+file_path = "timestamp_allignment_Balanced_2024_12_14_rtt_logs.csv"
 df = pd.read_csv(file_path)
 
 # 確保 Label 為字串
-# df["Label"] = df["Label"].astype(str)
-df["label"] = df["label"].astype(str)
+df["Label"] = df["Label"].astype(str)
+# df["label"] = df["label"].astype(str)
 
 # 選取要繪製分布圖的 features
 features = [
@@ -26,8 +26,8 @@ os.makedirs(output_dir, exist_ok=True)
 while True:
     # 讓使用者輸入要分析的 RP (Label)
     selected_label = input("請輸入要分析的 RP (Label): ")
-    # filtered_df = df[df["Label"] == selected_label]
-    filtered_df = df[df["label"] == selected_label]
+    filtered_df = df[df["Label"] == selected_label]
+    # filtered_df = df[df["label"] == selected_label]
 
     if filtered_df.empty:
         print(f"沒有找到 Label 為 {selected_label} 的數據！")

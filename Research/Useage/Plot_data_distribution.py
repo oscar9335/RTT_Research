@@ -4,7 +4,7 @@ import seaborn as sns
 import os
 
 # 讀取 CSV 檔案
-file_path = "split_dataset_csv\\test_data_test.csv"
+file_path = "timestamp_allignment_Balanced_2024_12_14_rtt_logs.csv"
 df = pd.read_csv(file_path)
 
 print("欄位名稱：", df.columns.tolist())

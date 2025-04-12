@@ -4,9 +4,9 @@ import numpy as np
 
 # New data for accuracy (excluding week 0)
 weeks_acc = np.array([1, 2, 3, 4, 8])
-regressor_DNN = np.array([0.9650, 0.9684, 0.9717, 0.9573, 0.9726])
-original = np.array([0.9642, 0.9615, 0.9660, 0.9605, 0.9709])
-optimal = np.array([0.9737, 0.9738, 0.9779, 0.9646, 0.9694])
+regressor_DNN = np.array([0.0528, 0.0589, 0.0452, 0.0581, 0.0462])
+original = np.array([0.0465, 0.0648, 0.0521, 0.0584, 0.0553])
+optimal = np.array([0.0335, 0.0361, 0.0391, 0.0511, 0.0537])
 
 # Plot settings
 plt.figure(figsize=(8, 6))
@@ -16,8 +16,8 @@ plt.plot(weeks_acc, optimal, marker='s', linestyle='--', label="4 mcAP optimal",
 
 # Labels and title
 plt.xlabel("Time Pass (Weeks)", fontsize=14)
-plt.ylabel("Accuracy", fontsize=14)
-plt.title("Accuracy over time", fontsize=14)
+plt.ylabel("MDE", fontsize=14)
+plt.title("MDE over time", fontsize=14)
 plt.legend(fontsize=12)
 
 # Grid and show
