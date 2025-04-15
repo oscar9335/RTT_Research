@@ -333,25 +333,7 @@ for loop in range(1):
 
     # print(f"Accuracy report saved to: {file_path}")
 
-    import shap
-
-    # 選取驗證集中的一部份作為背景與分析資料 (這裡以 X_val 前 100 筆為例)
-    X_sample = X_val[:100]
-
-    # 建立 SHAP DeepExplainer
-    # 注意：TensorFlow 版本較新可能會有警告，但一般不影響最終結果
-    explainer = shap.DeepExplainer(model, X_sample)
-    shap_values = explainer.shap_values(X_sample)
-
-    # 由於分類模型會得到每個 class 的 SHAP 值，以下我們以 class 0 為例進行 summary plot，
-    # 並使用你原始特徵名稱 (columns_to_scale) 來標示 x 軸。
-    shap.summary_plot(shap_values[0], X_sample, feature_names=columns_to_scale)
-
-    # 若發現 DeepExplainer 有不適用的狀況，也可以改用 KernelExplainer（速度較慢）：
-    # background = X_train[np.random.choice(X_train.shape[0], 50, replace=False)]
-    # explainer = shap.KernelExplainer(model.predict, background)
-    # shap_values = explainer.shap_values(X_val[:50])
-    # shap.summary_plot(shap_values[0], X_val[:50], feature_names=columns_to_scale)
+    
 
 
 print([round(float(mde), 4) for mde in all_mde])
