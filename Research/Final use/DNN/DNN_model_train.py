@@ -47,11 +47,11 @@ label_mapping = {
     '45': '11-1','44': '11-2','43': '11-3','42': '11-4','41': '11-5','40': '11-6','39': '11-7','38': '11-8','37': '11-9','36': '11-10','35': '11-11'
 }
 selected_columns = ['Label',
-                            'AP2_Distance (mm)',
-                            'AP2_StdDev (mm)',
-                                'AP1_Rssi','AP2_Rssi','AP3_Rssi','AP4_Rssi'
+                                'AP2_Rssi','AP3_Rssi','AP4_Rssi'
                                 ]  
 
+# 'AP4_Distance (mm)',
+# 'AP4_StdDev (mm)',
 
 what_data = "test"
 # what_data = "DNN_3Layer_1AP_Best_combine_F_S_R_20241214_usingearlystopepchoc10000"
@@ -335,30 +335,9 @@ for loop in range(10):
 
     # print(f"Accuracy report saved to: {file_path}")
 
-<<<<<<< HEAD
-    
-=======
-    # import shap
-
-    # # 選取驗證集中的一部份作為背景與分析資料 (這裡以 X_val 前 100 筆為例)
-    # X_sample = X_val[:100]
-
-    # # 建立 SHAP DeepExplainer
-    # # 注意：TensorFlow 版本較新可能會有警告，但一般不影響最終結果
-    # explainer = shap.DeepExplainer(model, X_sample)
-    # shap_values = explainer.shap_values(X_sample)
-
-    # # 由於分類模型會得到每個 class 的 SHAP 值，以下我們以 class 0 為例進行 summary plot，
-    # # 並使用你原始特徵名稱 (columns_to_scale) 來標示 x 軸。
-    # shap.summary_plot(shap_values[0], X_sample, feature_names=columns_to_scale)
-
-    # 若發現 DeepExplainer 有不適用的狀況，也可以改用 KernelExplainer（速度較慢）：
-    # background = X_train[np.random.choice(X_train.shape[0], 50, replace=False)]
-    # explainer = shap.KernelExplainer(model.predict, background)
-    # shap_values = explainer.shap_values(X_val[:50])
-    # shap.summary_plot(shap_values[0], X_val[:50], feature_names=columns_to_scale)
->>>>>>> 4edb14dc02df86539ce26b055d7e7679373405ea
-
 
 print([round(float(mde), 4) for mde in all_mde])
+print("平均 MDE:", round(sum(map(float, all_mde)) / len(all_mde), 4))
+
 print([round(float(acc), 4) for acc in all_accuracy])
+print("平均 Accuracy:", round(sum(map(float, all_accuracy)) / len(all_accuracy), 4))
