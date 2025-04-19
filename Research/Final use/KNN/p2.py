@@ -5,8 +5,8 @@ import pandas as pd
 # 建立資料
 data = {
     "Model": ["mcAP1", "mcAP2", "mcAP3", "mcAP4"],
-    "MDE (m)": [0.0465, 0.0520, 0.0780, 0.0628],
-    "Accuracy (%)": [97.31, 97.37, 96.31, 97.31]
+    "MDE (m)": [0.0465, 0.0625, 0.0780, 0.0570],
+    "Accuracy (%)": [97.31, 97.26, 96.31, 97.31]
 }
 df = pd.DataFrame(data)
 
