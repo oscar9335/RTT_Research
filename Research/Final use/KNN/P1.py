@@ -1,29 +1,65 @@
-import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
+import numpy as np
 
-# 定義實驗資料
-data = [
-    {"Setting": "Baseline (RSSI only)", "APs Used": "-", "Data Type": "RSSI", "MDE (m)": 0.2294, "Accuracy (%)": 91.46, "Worst Case (m)": 1.2281},
-    {"Setting": "AP1FTMonly", "APs Used": "AP1", "Data Type": "Distance", "MDE (m)": 1.9492, "Accuracy (%)": 39.49, "Worst Case (m)": 6.2892},
-    {"Setting": "AP1,AP2FTMonly", "APs Used": "AP1, AP2", "Data Type": "Distance", "MDE (m)": 0.2762, "Accuracy (%)": 88.85, "Worst Case (m)": 1.3520},
-    {"Setting": "AP1,AP2,AP3FTMonly", "APs Used": "AP1, AP2, AP3", "Data Type": "Distance", "MDE (m)": 0.0435, "Accuracy (%)": 97.08, "Worst Case (m)": 0.1447},
-    {"Setting": "AP1", "APs Used": "AP1", "Data Type": "Distance + RSSI", "MDE (m)": 0.7770, "Accuracy (%)": 72.80, "Worst Case (m)": 4.4036},
-    {"Setting": "AP1,AP2", "APs Used": "AP1, AP2", "Data Type": "Distance + RSSI", "MDE (m)": 0.0696, "Accuracy (%)": 96.88, "Worst Case (m)": 0.3652},
-    {"Setting": "AP1,AP2,AP3", "APs Used": "AP1, AP2, AP3", "Data Type": "Distance + RSSI", "MDE (m)": 0.0196, "Accuracy (%)": 98.59, "Worst Case (m)": 0.0606},
-]
+# Data
+labels = ['Baseline', 'AP1', 'AP1,AP2', 'AP1,AP2,AP3']
+mde_baseline = [0.2294, 0, 0, 0]
+mde_ftm = [0, 1.9492, 0.2762, 0.0435]
+mde_rssi_ftm = [0, 0.777, 0.0696, 0.0196]
 
-df = pd.DataFrame(data)
+x = np.arange(len(labels))  # the label locations
+width = 0.25  # the width of the bars
 
-# 顯示表格
-print("\n=== RTT Fingerprint Experiment Summary ===")
-print(df.to_string(index=False))
+# Shift adjustment
+offsets = [-width/2, 0, width/2]
 
-# 畫出 MDE 直方圖
-plt.figure(figsize=(12, 6))
-sns.barplot(data=df, x="Setting", y="MDE (m)", palette="Blues_d")
-plt.xticks(rotation=45, ha='right')
-plt.title("Comparison of Mean Distance Error (MDE)")
-plt.ylabel("MDE (meters)")
+fig, ax = plt.subplots(figsize=(8, 6))
+
+# Plot bars with adjusted alignment for better centering
+bars1 = ax.bar(x[0] + offsets[1], mde_baseline[0], width, label='RSSI only', color='#999999')  # Baseline
+bars2 = ax.bar(x[1] + offsets[0], mde_ftm[1], width, label='FTM only', color='#70b8c4')
+bars3 = ax.bar(x[1] + offsets[2], mde_rssi_ftm[1], width, label='RSSI + FTM', color='#c47b70')
+bars4 = ax.bar(x[2] + offsets[0], mde_ftm[2], width, color='#70b8c4')
+bars5 = ax.bar(x[2] + offsets[2], mde_rssi_ftm[2], width, color='#c47b70')
+bars6 = ax.bar(x[3] + offsets[0], mde_ftm[3], width, color='#70b8c4')
+bars7 = ax.bar(x[3] + offsets[2], mde_rssi_ftm[3], width, color='#c47b70')
+
+# Labels and styling
+ax.set_ylabel('MDE (m)', fontsize=15)
+ax.set_title('', fontsize=15)
+ax.set_xticks(x)
+ax.set_xticklabels(labels, fontsize=15)
+ax.tick_params(axis='y', labelsize=15)
+ax.legend(fontsize=15)
+
+plt.tight_layout()
+plt.show()
+
+
+# Accuracy values for each configuration
+accuracy_baseline = [91.46, 0, 0, 0]
+accuracy_ftm = [0, 39.49, 88.85, 97.08]
+accuracy_rssi_ftm = [0, 72.8, 96.88, 98.59]
+
+# Plotting
+fig, ax = plt.subplots(figsize=(8, 6))
+
+# Plot bars with adjusted alignment for centering
+bars1 = ax.bar(x[0] + offsets[1], accuracy_baseline[0], width, label='RSSI only', color='#999999')
+bars2 = ax.bar(x[1] + offsets[0], accuracy_ftm[1], width, label='FTM only', color='#70b8c4')
+bars3 = ax.bar(x[1] + offsets[2], accuracy_rssi_ftm[1], width, label='RSSI + FTM', color='#c47b70')
+bars4 = ax.bar(x[2] + offsets[0], accuracy_ftm[2], width, color='#70b8c4')
+bars5 = ax.bar(x[2] + offsets[2], accuracy_rssi_ftm[2], width, color='#c47b70')
+bars6 = ax.bar(x[3] + offsets[0], accuracy_ftm[3], width, color='#70b8c4')
+bars7 = ax.bar(x[3] + offsets[2], accuracy_rssi_ftm[3], width, color='#c47b70')
+
+# Labels and styling
+ax.set_ylabel('Accuracy (%)', fontsize=15)
+ax.set_title('', fontsize=15)
+ax.set_xticks(x)
+ax.set_xticklabels(labels, fontsize=15)
+ax.tick_params(axis='y', labelsize=15)
+ax.legend(fontsize=15)
+
 plt.tight_layout()
 plt.show()
