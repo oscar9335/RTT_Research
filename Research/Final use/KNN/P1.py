@@ -59,7 +59,7 @@ ax.set_title('', fontsize=15)
 ax.set_xticks(x)
 ax.set_xticklabels(labels, fontsize=15)
 ax.tick_params(axis='y', labelsize=15)
-ax.legend(fontsize=15)
+ax.legend(loc = "lower left",fontsize=15)
 
 plt.tight_layout()
 plt.show()
