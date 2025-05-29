@@ -47,6 +47,8 @@ label_mapping = {
     '45': '11-1','44': '11-2','43': '11-3','42': '11-4','41': '11-5','40': '11-6','39': '11-7','38': '11-8','37': '11-9','36': '11-10','35': '11-11'
 }
 selected_columns = ['Label',
+                    'AP2_Distance (mm)','AP3_Distance (mm)',
+                        'AP2_StdDev (mm)','AP3_StdDev (mm)',
                                 'AP1_Rssi','AP2_Rssi','AP3_Rssi','AP4_Rssi'
                                 ]  
 
@@ -123,7 +125,7 @@ all_accuracy = []
 
 best_mde = float('inf')  # 初始化最佳 MDE
 
-modelname = "2mcAPbestbset"
+modelname = "2mcAPbestwosrt"
 
 for loop in range(10):
 
