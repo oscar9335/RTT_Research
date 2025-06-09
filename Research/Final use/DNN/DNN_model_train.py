@@ -47,9 +47,9 @@ label_mapping = {
     '45': '11-1','44': '11-2','43': '11-3','42': '11-4','41': '11-5','40': '11-6','39': '11-7','38': '11-8','37': '11-9','36': '11-10','35': '11-11'
 }
 selected_columns = ['Label',
-                    'AP2_Distance (mm)','AP3_Distance (mm)',
-                        'AP2_StdDev (mm)','AP3_StdDev (mm)',
-                                'AP1_Rssi','AP2_Rssi','AP3_Rssi','AP4_Rssi'
+                   'AP2_Distance (mm)','AP3_Distance (mm)','AP4_Distance (mm)',
+                        'AP2_StdDev (mm)','AP3_StdDev (mm)','AP4_StdDev (mm)',
+                        'AP1_Rssi','AP2_Rssi','AP3_Rssi','AP4_Rssi'
                                 ]  
 
 # 'AP4_Distance (mm)',
@@ -125,9 +125,11 @@ all_accuracy = []
 
 best_mde = float('inf')  # 初始化最佳 MDE
 
-modelname = "2mcAPbestwosrt"
+modelname = "3mcAPbestwosrt"
 
-for loop in range(10):
+all_errors = []
+
+for loop in range(20):
 
     ap = 'test'
     root = 'test'
@@ -238,6 +240,9 @@ for loop in range(10):
 
 
     distances = np.linalg.norm(y_test_pred_coordinates - y_test_coordinates, axis=1)
+
+    all_errors.extend(distances)   # ★★★★★ 新增這行，累積10次所有error
+
     avg_mde = np.mean(distances)
 
     # if best_mde > avg_mde:
@@ -343,3 +348,29 @@ print("平均 MDE:", round(sum(map(float, all_mde)) / len(all_mde), 4))
 
 print([round(float(acc), 4) for acc in all_accuracy])
 print("平均 Accuracy:", round(sum(map(float, all_accuracy)) / len(all_accuracy), 4))
+
+
+
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+errors = np.array(all_errors)
+errors = errors[~np.isnan(errors)]  # 若有nan則去除
+
+# 計算CDF
+sorted_errors = np.sort(errors)
+
+np.savetxt('DNN all_mde_errors_20runs_3mcAP AP2 AP3 AP4.txt', errors, fmt='%.6f')
+
+cdf = np.arange(1, len(sorted_errors)+1) / len(sorted_errors)
+
+plt.figure(figsize=(8, 6))
+plt.plot(sorted_errors, cdf, marker='.', linestyle='-')
+plt.xlabel('Mean Distance Error (m)')
+plt.ylabel('CDF')
+plt.title('CDF of Prediction Errors (all 10 runs)')
+plt.grid(True, linestyle='--', alpha=0.5)
+plt.tight_layout()
+plt.show()
+

@@ -3,8 +3,8 @@ import numpy as np
 
 # Data
 labels = ['baseline', '1 mcAP', '2 mcAP', '3 mcAP', '4 mcAP']
-MDE = [0.2294, 0.061, 0.0227, 0.0112, 0.0081]
-Accuracy = [91.46, 97.05, 98.52, 99.11, 99.34]
+MDE = [0.2264, 0.0515, 0.0247, 0.0161, 0.0143]
+Accuracy = [91.61, 97.61, 98.53, 98.89, 99.03]
 
 # Colors
 colors = ['#999999', '#70b8c4', '#70c4a1', '#c4b570', '#c47b70']
@@ -13,16 +13,28 @@ colors = ['#999999', '#70b8c4', '#70c4a1', '#c4b570', '#c47b70']
 plt.rcParams.update({'font.size': 14})
 
 # Plot MDE
-plt.figure(figsize=(8, 6))
-plt.bar(labels, MDE, color=colors)
+fig, ax = plt.subplots(figsize=(8, 6))
+bars = ax.bar(labels, MDE, color=colors)
 plt.ylabel("MDE (m)")
+# Add value labels on top
+for bar in bars:
+    height = bar.get_height()
+    ax.text(bar.get_x() + bar.get_width()/2., height + 0.002, 
+            f'{height:.4f}', ha='center', va='bottom')
 plt.tight_layout()
 plt.show()
 
 # Plot Accuracy
-plt.figure(figsize=(8, 6))
-plt.bar(labels, Accuracy, color=colors)
-plt.ylabel("Accuracy (%)")
-plt.ylim(88, 100)
+fig, ax = plt.subplots(figsize=(8, 6))
+bars = ax.bar(labels, Accuracy, color=colors)
+ax.set_ylabel("Accuracy (%)")
+ax.set_ylim(88, 100)
+
+# Add value labels on top
+for bar in bars:
+    height = bar.get_height()
+    ax.text(bar.get_x() + bar.get_width()/2., height + 0.2, 
+            f'{height:.2f}%', ha='center', va='bottom')
+
 plt.tight_layout()
 plt.show()

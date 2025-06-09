@@ -9,10 +9,10 @@ data = {
         "mcAP1+2+3", "mcAP1+2+4", "mcAP1+3+4", "mcAP2+3+4"
     ],
     "MDE (m)": [
-        0.0139, 0.0090, 0.0107, 0.0110
+        0.0176, 0.0147, 0.0159, 0.0160
     ],
     "Accuracy (%)": [
-        98.94, 99.23, 99.12, 99.15
+        98.72, 98.99, 98.91, 98.95
     ]
 }
 
@@ -25,7 +25,7 @@ color_list = ['#70b8c4', '#70c4a1', '#c4b570', '#c47b70']
 # Accuracy 圖
 plt.figure(figsize=(8, 6))
 sns.barplot(x="Model", y="Accuracy (%)", data=df, palette=color_list)
-plt.ylim(98.5, 99.5)
+plt.ylim(98.2, 99.2)
 plt.title("", fontsize=14)
 plt.ylabel("Accuracy (%)", fontsize=14)
 plt.xlabel("Model", fontsize=14)

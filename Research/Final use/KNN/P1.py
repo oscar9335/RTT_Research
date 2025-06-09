@@ -3,9 +3,9 @@ import numpy as np
 
 # Data
 labels = ['Baseline', 'AP1', 'AP1,AP2', 'AP1,AP2,AP3']
-mde_baseline = [0.2294, 0, 0, 0]
-mde_ftm = [0, 1.9492, 0.2762, 0.0435]
-mde_rssi_ftm = [0, 0.777, 0.0696, 0.0196]
+mde_baseline = [0.2264, 0, 0, 0]
+mde_ftm = [0, 0.6374, 0.1040, 0.0440]
+mde_rssi_ftm = [0, 0.2982, 0.0693, 0.0279]
 
 x = np.arange(len(labels))  # the label locations
 width = 0.25  # the width of the bars
@@ -37,9 +37,9 @@ plt.show()
 
 
 # Accuracy values for each configuration
-accuracy_baseline = [91.46, 0, 0, 0]
-accuracy_ftm = [0, 39.49, 88.85, 97.08]
-accuracy_rssi_ftm = [0, 72.8, 96.88, 98.59]
+accuracy_baseline = [91.61, 0, 0, 0]
+accuracy_ftm = [0, 78.60, 96.00, 97.34]
+accuracy_rssi_ftm = [0, 89.12, 97.53, 98.23]
 
 # Plotting
 fig, ax = plt.subplots(figsize=(8, 6))
@@ -56,6 +56,7 @@ bars7 = ax.bar(x[3] + offsets[2], accuracy_rssi_ftm[3], width, color='#c47b70')
 # Labels and styling
 ax.set_ylabel('Accuracy (%)', fontsize=15)
 ax.set_title('', fontsize=15)
+ax.set_ylim(70, 100)
 ax.set_xticks(x)
 ax.set_xticklabels(labels, fontsize=15)
 ax.tick_params(axis='y', labelsize=15)

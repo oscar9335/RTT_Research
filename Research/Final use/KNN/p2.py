@@ -5,8 +5,8 @@ import pandas as pd
 # 建立資料
 data = {
     "Model": ["mcAP1", "mcAP2", "mcAP3", "mcAP4"],
-    "MDE (m)": [0.0465, 0.0625, 0.0780, 0.0570],
-    "Accuracy (%)": [97.31, 97.26, 96.31, 97.31]
+    "MDE (m)": [0.0374, 0.0381, 0.0759, 0.0544],
+    "Accuracy (%)": [97.94, 98.33, 96.54, 97.63]
 }
 df = pd.DataFrame(data)
 
@@ -16,7 +16,7 @@ color_list = ['#70b8c4', '#70c4a1', '#c4b570', '#c47b70']  # 可以根據喜好�
 # Accuracy 圖
 plt.figure(figsize=(8, 6))
 sns.barplot(x="Model", y="Accuracy (%)", data=df, palette=color_list)
-plt.ylim(95, 98)
+plt.ylim(96, 99)
 plt.title("", fontsize=14)
 plt.ylabel("Accuracy (%)", fontsize=14)
 plt.xlabel("Model", fontsize=14)

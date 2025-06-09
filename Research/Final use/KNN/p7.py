@@ -2,14 +2,14 @@ import matplotlib.pyplot as plt
 
 # Data
 models = ['RSSI-only', 'FTM-only', 'RSSI + FTM']
-mde_values = [0.2294, 0.0147, 0.0081]
+mde_values = [0.2264, 0.0254, 0.0143]
 colors = ['#999999', '#70b8c4', '#70c4a1']
 
 # Plot
 plt.figure(figsize=(8, 6))
 bars = plt.bar(models, mde_values, color=colors)
 
-# Annotate values
+# Annotate valuesp
 for bar in bars:
     yval = bar.get_height()
     plt.text(bar.get_x() + bar.get_width()/2.0, yval + 0.005,

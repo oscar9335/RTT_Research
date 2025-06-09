@@ -16,25 +16,31 @@ all_accuracy = []
 
 best_mde = float('inf')  # 初始化最佳 MDE
 
-for loop in range(10):
+all_errors = []
+
+for loop in range(20):
 
 ### 1. 訓練 regressor 
     df_reg = pd.read_csv("timestamp_allignment_Balanced_2024_12_14_rtt_logs.csv")
 
     # 篩選有有效 distance 的資料
-    ap1_data = df_reg[['AP1_Rssi', 'AP1_Distance (mm)']].dropna().rename(
-        columns={'AP1_Rssi': 'Rssi', 'AP1_Distance (mm)': 'Distance'}
+    # ap1_data = df_reg[['AP1_Rssi', 'AP1_Distance (mm)']].dropna().rename(
+    #     columns={'AP1_Rssi': 'Rssi', 'AP1_Distance (mm)': 'Distance'}
+    # )
+
+    ap2_data = df_reg[['AP2_Rssi', 'AP2_Distance (mm)']].dropna().rename(
+        columns={'AP2_Rssi': 'Rssi', 'AP2_Distance (mm)': 'Distance'}
     )
 
-    # ap3_data = df_reg[['AP3_Rssi', 'AP3_Distance (mm)']].dropna().rename(
-    #     columns={'AP3_Rssi': 'Rssi', 'AP3_Distance (mm)': 'Distance'}
-    # )
+    ap3_data = df_reg[['AP3_Rssi', 'AP3_Distance (mm)']].dropna().rename(
+        columns={'AP3_Rssi': 'Rssi', 'AP3_Distance (mm)': 'Distance'}
+    )
 
     ap4_data = df_reg[['AP4_Rssi', 'AP4_Distance (mm)']].dropna().rename(
         columns={'AP4_Rssi': 'Rssi', 'AP4_Distance (mm)': 'Distance'}
     )
 
-    train_data_reg = pd.concat([ap1_data, ap4_data], ignore_index=True)
+    train_data_reg = pd.concat([ap2_data,ap3_data,ap4_data], ignore_index=True)
     X_train_reg = train_data_reg[['Rssi']]
     y_train_reg = train_data_reg['Distance']
 
@@ -77,8 +83,8 @@ for loop in range(10):
 ### 2. 讀取 DNN 需要的資料
     # DNN 使用的原始欄位
     selected_columns = ['Label',
-                        'AP1_Distance (mm)','AP4_Distance (mm)',
-                        'AP1_StdDev (mm)', 'AP4_StdDev (mm)',
+                        'AP2_Distance (mm)','AP3_Distance (mm)','AP4_Distance (mm)',
+                        'AP2_StdDev (mm)','AP3_StdDev (mm)','AP4_StdDev (mm)',
                         'AP1_Rssi', 'AP2_Rssi', 'AP3_Rssi', 'AP4_Rssi']
 
     file_path = "timestamp_allignment_Balanced_2024_12_14_rtt_logs.csv"
@@ -97,27 +103,29 @@ for loop in range(10):
 
 ### 3. 利用 regressor 擴充 AP 2 3 的 Distance 預測值
     # 建立新欄位，初值設定為 NaN
-    data_imputed['AP2_Distance_predicted'] = np.nan
-    data_imputed['AP3_Distance_predicted'] = np.nan
+    data_imputed['AP1_Distance_predicted'] = np.nan
+    # data_imputed['AP2_Distance_predicted'] = np.nan
+    # data_imputed['AP3_Distance_predicted'] = np.nan
+    # data_imputed['AP4_Distance_predicted'] = np.nan
 
-    # # 利用 AP1_Rssi 預測 AP1_Distance_predicted
-    # mask_ap1 = data_imputed['AP1_Rssi'].notna()
-    # data_imputed.loc[mask_ap1, 'AP1_Distance_predicted'] = model_reg.predict(
-    #     data_imputed.loc[mask_ap1, ['AP1_Rssi']].rename(columns={'AP1_Rssi': 'Rssi'})
-    # )
+    # 利用 AP1_Rssi 預測 AP1_Distance_predicted
+    mask_ap1 = data_imputed['AP1_Rssi'].notna()
+    data_imputed.loc[mask_ap1, 'AP1_Distance_predicted'] = model_reg.predict(
+        data_imputed.loc[mask_ap1, ['AP1_Rssi']].rename(columns={'AP1_Rssi': 'Rssi'})
+    )
 
      # 利用 AP2_Rssi 預測 AP2_Distance_predicted
-    mask_ap2 = data_imputed['AP2_Rssi'].notna()
-    if mask_ap2.any():
-        # 先將 AP2_Rssi 轉換成 regressor 所需的格式並標準化
-        AP2_Rssi_scaled = scaler_reg.transform(data_imputed.loc[mask_ap2, ['AP2_Rssi']].rename(columns={'AP2_Rssi': 'Rssi'}))
-        data_imputed.loc[mask_ap2, 'AP2_Distance_predicted'] = model_reg.predict(AP2_Rssi_scaled)
+    # mask_ap2 = data_imputed['AP2_Rssi'].notna()
+    # if mask_ap2.any():
+    #     # 先將 AP2_Rssi 轉換成 regressor 所需的格式並標準化
+    #     AP2_Rssi_scaled = scaler_reg.transform(data_imputed.loc[mask_ap2, ['AP2_Rssi']].rename(columns={'AP2_Rssi': 'Rssi'}))
+    #     data_imputed.loc[mask_ap2, 'AP2_Distance_predicted'] = model_reg.predict(AP2_Rssi_scaled)
     
     # 利用 AP3_Rssi 預測 AP3_Distance_predicted
-    mask_ap3 = data_imputed['AP3_Rssi'].notna()
-    if mask_ap3.any():
-        AP3_Rssi_scaled = scaler_reg.transform(data_imputed.loc[mask_ap3, ['AP3_Rssi']].rename(columns={'AP3_Rssi': 'Rssi'}))
-        data_imputed.loc[mask_ap3, 'AP3_Distance_predicted'] = model_reg.predict(AP3_Rssi_scaled)
+    # mask_ap3 = data_imputed['AP3_Rssi'].notna()
+    # if mask_ap3.any():
+    #     AP3_Rssi_scaled = scaler_reg.transform(data_imputed.loc[mask_ap3, ['AP3_Rssi']].rename(columns={'AP3_Rssi': 'Rssi'}))
+    #     data_imputed.loc[mask_ap3, 'AP3_Distance_predicted'] = model_reg.predict(AP3_Rssi_scaled)
 
     # # 利用 AP4_Rssi 預測 AP4_Distance_predicted
     # mask_ap4 = data_imputed['AP4_Rssi'].notna()
@@ -126,7 +134,7 @@ for loop in range(10):
     # )
 
     # 更新 DNN 模型用的特徵欄位，將 regressor 預測值加入
-    selected_columns_dnn = selected_columns + ['AP2_Distance_predicted', 'AP3_Distance_predicted']
+    selected_columns_dnn = selected_columns + ['AP1_Distance_predicted']
 
 ### 4. 後續 DNN 資料準備與訓練
     print("每個 RP 的資料筆數: " + str(len(data_imputed)/49))
@@ -344,6 +352,9 @@ for loop in range(10):
 
 
     distances = np.linalg.norm(y_test_pred_coordinates - y_test_coordinates, axis=1)
+
+    all_errors.extend(distances)   # ★★★★★ 新增這行，累積10次所有error
+
     avg_mde = np.mean(distances)
     print(f"MDE: {avg_mde:.4f}")
 
@@ -442,6 +453,31 @@ for loop in range(10):
 
 
 print([round(float(mde), 4) for mde in all_mde])
+print("平均 MDE:", round(sum(map(float, all_mde)) / len(all_mde), 4))
 print([round(float(acc), 4) for acc in all_accuracy])
+print("平均 Accuracy:", round(sum(map(float, all_accuracy)) / len(all_accuracy), 4))
 
+
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+errors = np.array(all_errors)
+errors = errors[~np.isnan(errors)]  # 若有nan則去除
+
+# 計算CDF
+sorted_errors = np.sort(errors)
+
+np.savetxt('RegDNN all_mde_errors_20runs_3mcAP AP2 AP3 AP4.txt', errors, fmt='%.6f')
+
+cdf = np.arange(1, len(sorted_errors)+1) / len(sorted_errors)
+
+plt.figure(figsize=(8, 6))
+plt.plot(sorted_errors, cdf, marker='.', linestyle='-')
+plt.xlabel('Mean Distance Error (m)')
+plt.ylabel('CDF')
+plt.title('CDF of Prediction Errors (all 10 runs)')
+plt.grid(True, linestyle='--', alpha=0.5)
+plt.tight_layout()
+plt.show()
 
