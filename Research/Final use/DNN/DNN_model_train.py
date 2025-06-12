@@ -47,10 +47,9 @@ label_mapping = {
     '45': '11-1','44': '11-2','43': '11-3','42': '11-4','41': '11-5','40': '11-6','39': '11-7','38': '11-8','37': '11-9','36': '11-10','35': '11-11'
 }
 selected_columns = ['Label',
-                   'AP2_Distance (mm)','AP3_Distance (mm)','AP4_Distance (mm)',
-                        'AP2_StdDev (mm)','AP3_StdDev (mm)','AP4_StdDev (mm)',
-                        'AP1_Rssi','AP2_Rssi','AP3_Rssi','AP4_Rssi'
-                                ]  
+                            'AP1_Distance (mm)','AP2_Distance (mm)','AP3_Distance (mm)',
+                            'AP1_StdDev (mm)','AP2_StdDev (mm)','AP3_StdDev (mm)',
+                                'AP1_Rssi','AP2_Rssi','AP3_Rssi','AP4_Rssi']  
 
 # 'AP4_Distance (mm)',
 # 'AP4_StdDev (mm)',
@@ -129,7 +128,7 @@ modelname = "3mcAPbestwosrt"
 
 all_errors = []
 
-for loop in range(20):
+for loop in range(10):
 
     ap = 'test'
     root = 'test'
@@ -361,7 +360,7 @@ errors = errors[~np.isnan(errors)]  # 若有nan則去除
 # 計算CDF
 sorted_errors = np.sort(errors)
 
-np.savetxt('DNN all_mde_errors_20runs_3mcAP AP2 AP3 AP4.txt', errors, fmt='%.6f')
+np.savetxt('DNN all_mde_errors_20runs_3mcAP AP1 AP2 AP3.txt', errors, fmt='%.6f')
 
 cdf = np.arange(1, len(sorted_errors)+1) / len(sorted_errors)
 
